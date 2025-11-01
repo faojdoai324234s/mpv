@@ -1,1 +1,87 @@
+name: Windows Build
 
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  msys2:
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        sys:
+          - clang32
+          - clang64
+          - mingw32
+          - mingw64
+          - ucrt64
+    defaults:
+      run:
+        shell: msys2 {0}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: msys2/setup-msys2@v2
+        with:
+          msystem: ${{ matrix.sys }}
+          update: true
+          install: git
+          pacboy: >-
+            angleproject:p
+            ca-certificates:p
+            cc:p
+            diffutils:p
+            ffmpeg:p
+            lcms2:p
+            libarchive:p
+            libass:p
+            libcdio-paranoia:p
+            libdvdnav:p
+            libjpeg-turbo:p
+            libplacebo:p
+            lua51:p
+            ninja:p
+            pkgconf:p
+            python3.11:p
+            rst2pdf:p
+            rubberband:p
+            shaderc:p
+            spirv-cross:p
+            uchardet:p
+            vapoursynth:p
+            vulkan:p
+
+      - name: Build with meson
+        id: build
+        run: |
+          ./ci/build-msys2.sh meson
+
+      - name: Print meson log
+        if: ${{ failure() && steps.build.outcome == 'failure' }}
+        run: |
+          cat ./build/meson-logs/meson-log.txt
+
+      - name: Run meson tests
+        id: tests
+        run: |
+          source ./venv/bin/activate
+          meson test -C build
+
+      - name: Print meson test log
+        if: ${{ failure() && steps.tests.outcome == 'failure' }}
+        run: |
+          cat ./build/meson-logs/testlog.txt
+
+      - name: Build with waf
+        id: build_waf
+        run: |
+          ./ci/build-msys2.sh waf
+
+      - name: Print waf log
+        if: ${{ failure() && steps.build_waf.outcome == 'failure' }}
+        run: |
+          cat ./build_waf/config.log
