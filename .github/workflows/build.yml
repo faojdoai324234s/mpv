@@ -16,7 +16,7 @@ jobs:
       matrix:
         target: [i686-w64-mingw32, x86_64-w64-mingw32]
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       # Increase -N suffix here to force full rebuild after changes
       - uses: actions/cache@v3
@@ -73,7 +73,7 @@ jobs:
           - "macos-11"
           - "macos-12"
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Remove stray upstream python binary symlinks under /usr/local
         run: |
@@ -121,7 +121,7 @@ jobs:
           - "gcc"
           - "clang"
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Install dependencies
         run: |
@@ -150,7 +150,7 @@ jobs:
   freebsd:
     runs-on: macos-12 # until https://github.com/actions/runner/issues/385
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Test in FreeBSD VM
       uses: vmactions/freebsd-vm@v0
       with:
